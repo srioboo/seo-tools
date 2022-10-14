@@ -5,24 +5,6 @@ import csv
 import re
 from bs4 import BeautifulSoup
 
-# get data from a web menu
-def scrape_menu(soup, base_url='', language=''):
-    # categories
-    categories = soup.select("a[class^='menu_']")
-
-    # file namess
-    csv_menu_file = 'data_menu' + '_' + base_url + '_' + language
-    csv_url_file = 'data_url' + '_' + base_url + '_' + language
-
-    for cat in categories:
-        url = cat['href']
-        catnum = cat['id']
-        catid = cat['data-catid']
-
-        write_to_csv([catid,catnum,url], csv_menu_file)
-        # write_to_csv([url], csv_url_file)
-    print('Generated tree categories csv: ', csv_menu_file)
-
 # this is an example to scrape a book
 def scrape(source_url, soup):  # Takes the driver and the subdomain for concats as params
     # Find the elements of the article tag
@@ -60,31 +42,62 @@ def log(data, value):
     print(f'\t{value}')
     print("")
 
-# alter cookies
-def alter_cookie(session, node):
-    # get de cookies
-    mi_cookies = session.cookies
-    cookies_dic = mi_cookies.get_dict()
-    # log('cookies: ',cookies_dic)
+# get head metadata
+def get_head_metadata(soup):
 
-    # get searched cookie
-    jsession = mi_cookies.get('JSESSIONID')
-    # log('jsession: ', jsession)
+    # get title
+    metatitle = (soup.find('title')).get_text()
+    log("metatile: ", metatitle)
 
-    jsession_arr = jsession.split(':')
+    # get metadescription
+    metadescription = soup.find('meta',attrs={'name':'description'})["content"]
+    log("metadescription: ", metadescription)
 
-    # for i in range(len(nodes_arr)):
-    jsession_alt = jsession.replace(':' + jsession_arr[1], ':' + node)
-    print('jsession_new: ', jsession_alt)
+    # get metarobots
+    if soup.find('meta',attrs={'name':'robots'}) != None:
+        robots_directives = soup.find('meta',attrs={'name':'robots'})["content"].split(",")
+        log('Directivas robot',robots_directives)
+        write_to_csv(robots_directives)
+    else:
+        log("Directivas robot", "not found")
 
-    session.cookies.set('JSESSIONID', jsession_alt, domain='www.mayoral.com')
+    # get viewport
+    viewport = soup.find('meta',attrs={'name':'viewport'})["content"]
+    log('Vieport:', viewport)
 
-    # Example google cookies
-    # a_session = requests.Session()
-    # a_session.get('https://google.com/')
-    # session_cookies = a_session.cookies
-    # cookies_dictionary = session_cookies.get_dict()
-    # print('Google cookies: ',cookies_dictionary)
+    # get charset
+    # charset = soup.find('meta',attrs={'charset':True})["charset"]
+    # log('Charset: ', charset)
+
+# get canonical and hreflang
+def get_canonical(soup):
+    
+    # canonical
+    if soup.find('link',attrs={'rel':'canonical'}) != None:
+        canonical = soup.find('link',attrs={'rel':'canonical'})["href"]
+        log('Canonical: ', canonical)
+    else:
+        log('Canonical: ', 'not found')
+
+# get canonical and hreflang
+def get_hreflang(soup):
+    # hreflang
+    list_hreflangs = [[a['href'], a["hreflang"]] for a in soup.find_all('link', href=True, hreflang=True)]
+    # log('Hreflangs: ', list_hreflangs)
+    return list_hreflangs
+
+# get language
+def get_lang(soup):
+    html_language = soup.find('html')["lang"]
+    log('Html language: ', html_language)
+
+# get media
+def get_media(soup):
+    if soup.find('link',attrs={'media':'only screen and (max-width: 640px)'}) != None:
+        mobile_alternate = soup.find('link',attrs={'media':'only screen and (max-width: 640px)'})["href"]
+        log('Mobile alternate: ', mobile_alternate)
+    else:    
+        log('Mobile alternate: ', 'not found')
 
 # test if it have an url format
 def is_url(formatted_url):
@@ -100,6 +113,26 @@ def is_url(formatted_url):
     if source_url != None:
         is_url = True
     return is_url
+
+# get seo data
+def get_full_seo_data(soup):
+    # get head metadata
+    get_head_metadata(soup)
+
+    # get canonical
+    get_canonical(soup)
+    
+    # get canonical and hreflang
+    list_hreflangs = get_hreflang(soup)
+    # hreflang loop
+    for x in list_hreflangs:
+        print(str(x))
+
+    # get language
+    get_lang(soup)
+
+    # get media
+    # get_media(soup)
 
 # get data to parse
 def get_soup(session, formatted_url):
@@ -127,42 +160,9 @@ def browse_and_scrape(formatted_url, choice=1):
         response = session.get(formatted_url)
         
         if choice == 1:
-            # alter cookies
-            for i in range(len(nodes_arr)):
-                alter_cookie(session, nodes_arr[i])
-
-                # get the soup for each cookie alteration
-                soup = get_soup(session, formatted_url)
-
-                # Be a responsible citizen by waiting before you hit again
-                time.sleep(3)
-
-                # categories
-                categories = soup.select("a[class^='menu_']")
-                print('Categories tree size: ', len(categories))
-
-        elif choice == 2:
-            # get the soup for each cookie alteration
+            # get data
             soup = get_soup(session, formatted_url)
-
-            # get canonical and hreflang
-            list_hreflangs = get_hreflang(soup)
-            # log('Hreflangs: ', list_hreflangs) 
-
-            # hreflang loop
-            for x in list_hreflangs:
-                # print(str(x))
-                new_url = x[0]
-                new_lang = x[1]
-                
-                if "-" in new_lang:
-                    # go to all hreflang and search empty url
-                    # get data
-                    soup = get_soup(session, formatted_url)
-                    # scrape menu data
-                    scrape_menu(soup, '', new_lang)
-            print("grep 'Category_' *.csv")        
-
+            get_full_seo_data(soup) 
         else:
             help_message()        
 
@@ -175,8 +175,7 @@ def browse_and_scrape(formatted_url, choice=1):
 def help_message():
     print("Help message:")
     print("acepted parameters")
-    print("-m -> test if menus in nodes are correct")
-    print("-u -> list not SEO compilant urls")
+    print("-s -> get seo data")
     print("only one is allowed")
     print("Do you need a valid url")
 
@@ -196,10 +195,8 @@ if __name__ == "__main__":
         # get and show arguments
         if is_url(argument):
             seed_url = argument
-        elif argument == '-m':
-            choice = 1
-        elif argument == '-u':
-            choice = 2    
+        elif argument == '-s':
+            choice = 1   
 
         # print(is_url(argument))
         # print(argument)

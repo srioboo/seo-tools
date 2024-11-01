@@ -1,14 +1,34 @@
 # seotools
+
 Algunas herramients para gestión de datos SEO
 
-## librerías necesarias para scripts en python
+## Instalar paquetes requeridos
 
-´´´bash
-pip3 install beautifulsoup4
+Se puede hacer de dos formas
 
-pip3 install requests
+1. (Recomendado) usando el archivo requirements.txt (\*)
 
-pip3 install lxml
+   ```shell
+   pip install -r requirements.txt
+   ```
 
-pip3 install cloudscraper
-´´´
+2. librerías necesarias para scripts en python una a una
+
+   ´´´shell
+   pip install beautifulsoup4
+
+   pip install requests
+
+   pip install lxml
+
+   pip install cloudscraper
+   ´´´
+
+NOTA\*: en wsl puede que sean necesario crear un entorno virtual, esto se hace de la siguiente forma:
+
+```shell
+python3 -m venv path/to/venv
+
+cd path/to/venv
+source bin/activate
+```

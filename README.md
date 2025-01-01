@@ -1,18 +1,18 @@
-# seotools
+# Seotools
 
-Algunas herramients para gestión de datos SEO
+Some tools to retrieve and manage SEO data
 
-## Instalar paquetes requeridos
+## Install requirements
 
-Se puede hacer de dos formas
+It can be done in two ways
 
-1. (Recomendado) usando el archivo requirements.txt (\*)
+1. (Recomended) use requirements.txt (\*)
 
    ```shell
    pip install -r requirements.txt
    ```
 
-2. librerías necesarias para scripts en python una a una
+2. (Manual) install each python library individually
 
    ´´´shell
    pip install beautifulsoup4
@@ -24,7 +24,7 @@ Se puede hacer de dos formas
    pip install cloudscraper
    ´´´
 
-NOTA\*: en wsl puede que sean necesario crear un entorno virtual, esto se hace de la siguiente forma:
+NOTE\*: in wsl enviroment could be necesary to create a virtual env, in this case proceded as follow:
 
 ```shell
 python3 -m venv path/to/venv

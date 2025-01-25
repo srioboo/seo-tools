@@ -14,7 +14,7 @@ It can be done in two ways
 
 2. (Manual) install each python library individually
 
-   ´´´shell
+   ```shell
    pip install beautifulsoup4
 
    pip install requests
@@ -22,7 +22,7 @@ It can be done in two ways
    pip install lxml
 
    pip install cloudscraper
-   ´´´
+   ```
 
 NOTE\*: in wsl enviroment could be necesary to create a virtual env, in this case proceded as follow:
 

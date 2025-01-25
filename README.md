@@ -24,7 +24,7 @@ It can be done in two ways
    pip install cloudscraper
    ```
 
-NOTE\*: in wsl enviroment could be necesary to create a virtual env, in this case proceded as follow:
+**NOTE**: in wsl enviroment could be necesary to create a virtual env, in this case proceded as follow:
 
 ```shell
 python3 -m venv path/to/venv

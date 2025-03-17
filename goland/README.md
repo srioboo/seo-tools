@@ -17,9 +17,15 @@ go build name_file.go
 ./name_file
 ```
 
+Example:
 
+```shell
+go run seo-scraper.go https://salrion.vercel.app
+```
 
 ```
 ```
-```
-```
+
+## Resource
+
+https://dev.to/claudbytes/build-a-web-scraper-with-go-3jod
